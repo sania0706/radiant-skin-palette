@@ -3,10 +3,14 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Star, ShoppingBag, Eye, Palette } from "lucide-react";
+import { Star, ShoppingBag, Eye, Palette, Menu, X } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const Index = () => {
   const [activeSection, setActiveSection] = useState("all");
+  const [cart, setCart] = useState([]);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const navigate = useNavigate();
 
   const products = [
     {
@@ -84,6 +88,23 @@ const Index = () => {
     ? products 
     : products.filter(product => product.category === activeSection);
 
+  const addToCart = (product) => {
+    setCart(prev => [...prev, product]);
+    console.log(`Added ${product.name} to cart`);
+  };
+
+  const scrollToSection = (sectionId) => {
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+    setMobileMenuOpen(false);
+  };
+
+  const handleSkinQuiz = () => {
+    navigate('/skin-quiz');
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-rose-50 via-white to-pink-50">
       {/* Navigation */}
@@ -97,16 +118,76 @@ const Index = () => {
               </span>
             </div>
             <div className="hidden md:flex items-center space-x-8">
-              <a href="#skincare" className="text-gray-700 hover:text-rose-500 transition-colors">Skincare</a>
-              <a href="#makeup" className="text-gray-700 hover:text-rose-500 transition-colors">Makeup</a>
-              <a href="#skin-quiz" className="text-gray-700 hover:text-rose-500 transition-colors">Skin Quiz</a>
-              <Button className="bg-rose-500 hover:bg-rose-600 text-white">
+              <button 
+                onClick={() => scrollToSection('skincare')} 
+                className="text-gray-700 hover:text-rose-500 transition-colors"
+              >
+                Skincare
+              </button>
+              <button 
+                onClick={() => scrollToSection('makeup')} 
+                className="text-gray-700 hover:text-rose-500 transition-colors"
+              >
+                Makeup
+              </button>
+              <button 
+                onClick={handleSkinQuiz} 
+                className="text-gray-700 hover:text-rose-500 transition-colors"
+              >
+                Skin Quiz
+              </button>
+              <Button 
+                className="bg-rose-500 hover:bg-rose-600 text-white"
+                onClick={() => console.log('Cart opened', cart)}
+              >
                 <ShoppingBag className="h-4 w-4 mr-2" />
-                Cart
+                Cart ({cart.length})
+              </Button>
+            </div>
+            <div className="md:hidden">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              >
+                {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
               </Button>
             </div>
           </div>
         </div>
+        
+        {/* Mobile Menu */}
+        {mobileMenuOpen && (
+          <div className="md:hidden bg-white border-t border-rose-100">
+            <div className="px-2 pt-2 pb-3 space-y-1">
+              <button 
+                onClick={() => scrollToSection('skincare')} 
+                className="block px-3 py-2 text-gray-700 hover:text-rose-500 transition-colors w-full text-left"
+              >
+                Skincare
+              </button>
+              <button 
+                onClick={() => scrollToSection('makeup')} 
+                className="block px-3 py-2 text-gray-700 hover:text-rose-500 transition-colors w-full text-left"
+              >
+                Makeup
+              </button>
+              <button 
+                onClick={handleSkinQuiz} 
+                className="block px-3 py-2 text-gray-700 hover:text-rose-500 transition-colors w-full text-left"
+              >
+                Skin Quiz
+              </button>
+              <Button 
+                className="bg-rose-500 hover:bg-rose-600 text-white w-full"
+                onClick={() => console.log('Cart opened', cart)}
+              >
+                <ShoppingBag className="h-4 w-4 mr-2" />
+                Cart ({cart.length})
+              </Button>
+            </div>
+          </div>
+        )}
       </nav>
 
       {/* Hero Section */}
@@ -126,10 +207,19 @@ const Index = () => {
                 From gentle cleansers to bold lipsticks, we've got your beauty journey covered.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
-                <Button size="lg" className="bg-rose-500 hover:bg-rose-600 text-white px-8 py-3">
+                <Button 
+                  size="lg" 
+                  className="bg-rose-500 hover:bg-rose-600 text-white px-8 py-3"
+                  onClick={() => scrollToSection('skincare')}
+                >
                   Shop Skincare
                 </Button>
-                <Button size="lg" variant="outline" className="border-rose-300 text-rose-600 hover:bg-rose-50 px-8 py-3">
+                <Button 
+                  size="lg" 
+                  variant="outline" 
+                  className="border-rose-300 text-rose-600 hover:bg-rose-50 px-8 py-3"
+                  onClick={() => scrollToSection('makeup')}
+                >
                   Explore Makeup
                 </Button>
               </div>
@@ -155,7 +245,7 @@ const Index = () => {
       </section>
 
       {/* Skin Type Guide */}
-      <section className="py-16 bg-white">
+      <section className="py-16 bg-white" id="skin-types">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-4xl font-bold text-gray-900 mb-4">Find Your Perfect Match</h2>
@@ -163,7 +253,18 @@ const Index = () => {
           </div>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
             {skinTypes.map((type) => (
-              <Card key={type.id} className="cursor-pointer hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+              <Card 
+                key={type.id} 
+                className="cursor-pointer hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
+                onClick={() => {
+                  console.log(`Selected skin type: ${type.name}`);
+                  // Filter products by skin type
+                  const filteredBySkinType = products.filter(product => 
+                    product.skinType.includes(type.id)
+                  );
+                  console.log(`Products for ${type.name}:`, filteredBySkinType);
+                }}
+              >
                 <CardContent className="p-6 text-center">
                   <div className="text-3xl mb-3">{type.icon}</div>
                   <h3 className="font-semibold text-gray-900">{type.name}</h3>
@@ -175,7 +276,7 @@ const Index = () => {
       </section>
 
       {/* Product Categories */}
-      <section className="py-16 bg-gradient-to-br from-rose-50 to-pink-50">
+      <section className="py-16 bg-gradient-to-br from-rose-50 to-pink-50" id="products">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-4xl font-bold text-gray-900 mb-4">Our Collections</h2>
@@ -191,6 +292,7 @@ const Index = () => {
                 variant={activeSection === "skincare" ? "default" : "outline"}
                 onClick={() => setActiveSection("skincare")}
                 className={activeSection === "skincare" ? "bg-rose-500 text-white" : ""}
+                id="skincare"
               >
                 <Eye className="h-4 w-4 mr-2" />
                 Skincare
@@ -199,6 +301,7 @@ const Index = () => {
                 variant={activeSection === "makeup" ? "default" : "outline"}
                 onClick={() => setActiveSection("makeup")}
                 className={activeSection === "makeup" ? "bg-rose-500 text-white" : ""}
+                id="makeup"
               >
                 <Palette className="h-4 w-4 mr-2" />
                 Makeup
@@ -230,7 +333,11 @@ const Index = () => {
                   <p className="text-gray-600 text-sm mb-3">{product.description}</p>
                   <div className="flex items-center justify-between">
                     <span className="text-xl font-bold text-rose-500">{product.price}</span>
-                    <Button size="sm" className="bg-rose-500 hover:bg-rose-600 text-white">
+                    <Button 
+                      size="sm" 
+                      className="bg-rose-500 hover:bg-rose-600 text-white"
+                      onClick={() => addToCart(product)}
+                    >
                       Add to Cart
                     </Button>
                   </div>
@@ -242,7 +349,7 @@ const Index = () => {
       </section>
 
       {/* Educational Section */}
-      <section className="py-16 bg-white">
+      <section className="py-16 bg-white" id="education">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div>
@@ -263,7 +370,10 @@ const Index = () => {
                   <p className="text-gray-600">Requires gentle, fragrance-free products with soothing ingredients like aloe vera and chamomile.</p>
                 </div>
               </div>
-              <Button className="mt-8 bg-rose-500 hover:bg-rose-600 text-white">
+              <Button 
+                className="mt-8 bg-rose-500 hover:bg-rose-600 text-white"
+                onClick={handleSkinQuiz}
+              >
                 Take Our Skin Quiz
               </Button>
             </div>
@@ -299,29 +409,95 @@ const Index = () => {
             <div>
               <h3 className="font-semibold mb-4">Shop</h3>
               <ul className="space-y-2 text-gray-400">
-                <li><a href="#" className="hover:text-rose-400 transition-colors">Skincare</a></li>
-                <li><a href="#" className="hover:text-rose-400 transition-colors">Makeup</a></li>
-                <li><a href="#" className="hover:text-rose-400 transition-colors">New Arrivals</a></li>
-                <li><a href="#" className="hover:text-rose-400 transition-colors">Best Sellers</a></li>
+                <li>
+                  <button 
+                    onClick={() => scrollToSection('skincare')} 
+                    className="hover:text-rose-400 transition-colors"
+                  >
+                    Skincare
+                  </button>
+                </li>
+                <li>
+                  <button 
+                    onClick={() => scrollToSection('makeup')} 
+                    className="hover:text-rose-400 transition-colors"
+                  >
+                    Makeup
+                  </button>
+                </li>
+                <li>
+                  <button 
+                    onClick={() => console.log('New Arrivals clicked')} 
+                    className="hover:text-rose-400 transition-colors"
+                  >
+                    New Arrivals
+                  </button>
+                </li>
+                <li>
+                  <button 
+                    onClick={() => console.log('Best Sellers clicked')} 
+                    className="hover:text-rose-400 transition-colors"
+                  >
+                    Best Sellers
+                  </button>
+                </li>
               </ul>
             </div>
             <div>
               <h3 className="font-semibold mb-4">Support</h3>
               <ul className="space-y-2 text-gray-400">
-                <li><a href="#" className="hover:text-rose-400 transition-colors">Contact Us</a></li>
-                <li><a href="#" className="hover:text-rose-400 transition-colors">Skin Quiz</a></li>
-                <li><a href="#" className="hover:text-rose-400 transition-colors">Beauty Tips</a></li>
-                <li><a href="#" className="hover:text-rose-400 transition-colors">Returns</a></li>
+                <li>
+                  <button 
+                    onClick={() => console.log('Contact Us clicked')} 
+                    className="hover:text-rose-400 transition-colors"
+                  >
+                    Contact Us
+                  </button>
+                </li>
+                <li>
+                  <button 
+                    onClick={handleSkinQuiz} 
+                    className="hover:text-rose-400 transition-colors"
+                  >
+                    Skin Quiz
+                  </button>
+                </li>
+                <li>
+                  <button 
+                    onClick={() => scrollToSection('education')} 
+                    className="hover:text-rose-400 transition-colors"
+                  >
+                    Beauty Tips
+                  </button>
+                </li>
+                <li>
+                  <button 
+                    onClick={() => console.log('Returns clicked')} 
+                    className="hover:text-rose-400 transition-colors"
+                  >
+                    Returns
+                  </button>
+                </li>
               </ul>
             </div>
             <div>
               <h3 className="font-semibold mb-4">Follow Us</h3>
               <p className="text-gray-400 mb-4">Stay updated with our latest products and beauty tips.</p>
               <div className="flex space-x-4">
-                <Button size="sm" variant="outline" className="border-gray-600 text-gray-400 hover:border-rose-400 hover:text-rose-400">
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  className="border-gray-600 text-gray-400 hover:border-rose-400 hover:text-rose-400"
+                  onClick={() => window.open('https://instagram.com', '_blank')}
+                >
                   Instagram
                 </Button>
-                <Button size="sm" variant="outline" className="border-gray-600 text-gray-400 hover:border-rose-400 hover:text-rose-400">
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  className="border-gray-600 text-gray-400 hover:border-rose-400 hover:text-rose-400"
+                  onClick={() => window.open('https://tiktok.com', '_blank')}
+                >
                   TikTok
                 </Button>
               </div>
