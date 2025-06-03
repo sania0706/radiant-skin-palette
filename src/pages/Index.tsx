@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -101,6 +100,10 @@ const Index = () => {
     setMobileMenuOpen(false);
   };
 
+  const handleTutorials = () => {
+    navigate('/tutorials');
+  };
+
   const handleSkinQuiz = () => {
     navigate('/skin-quiz');
   };
@@ -129,6 +132,12 @@ const Index = () => {
                 className="text-gray-700 hover:text-rose-500 transition-colors"
               >
                 Makeup
+              </button>
+              <button 
+                onClick={handleTutorials} 
+                className="text-gray-700 hover:text-rose-500 transition-colors"
+              >
+                Tutorials
               </button>
               <button 
                 onClick={handleSkinQuiz} 
@@ -171,6 +180,12 @@ const Index = () => {
                 className="block px-3 py-2 text-gray-700 hover:text-rose-500 transition-colors w-full text-left"
               >
                 Makeup
+              </button>
+              <button 
+                onClick={handleTutorials} 
+                className="block px-3 py-2 text-gray-700 hover:text-rose-500 transition-colors w-full text-left"
+              >
+                Tutorials
               </button>
               <button 
                 onClick={handleSkinQuiz} 
@@ -354,28 +369,37 @@ const Index = () => {
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div>
               <h2 className="text-4xl font-bold text-gray-900 mb-6">
-                Understanding Your Skin
+                Master Your Beauty Routine
               </h2>
               <div className="space-y-6">
                 <div className="border-l-4 border-rose-500 pl-6">
-                  <h3 className="text-xl font-semibold mb-2">Dry Skin</h3>
-                  <p className="text-gray-600">Needs extra hydration and gentle, nourishing ingredients like hyaluronic acid and ceramides.</p>
+                  <h3 className="text-xl font-semibold mb-2">Step-by-Step Tutorials</h3>
+                  <p className="text-gray-600">Learn the proper order and techniques for applying skincare and makeup products for best results.</p>
                 </div>
                 <div className="border-l-4 border-rose-500 pl-6">
-                  <h3 className="text-xl font-semibold mb-2">Oily Skin</h3>
-                  <p className="text-gray-600">Benefits from oil-controlling ingredients like niacinamide and salicylic acid, plus lightweight formulas.</p>
+                  <h3 className="text-xl font-semibold mb-2">Pro Tips & Tricks</h3>
+                  <p className="text-gray-600">Discover insider secrets and professional techniques to elevate your beauty routine.</p>
                 </div>
                 <div className="border-l-4 border-rose-500 pl-6">
-                  <h3 className="text-xl font-semibold mb-2">Sensitive Skin</h3>
-                  <p className="text-gray-600">Requires gentle, fragrance-free products with soothing ingredients like aloe vera and chamomile.</p>
+                  <h3 className="text-xl font-semibold mb-2">Personalized Guidance</h3>
+                  <p className="text-gray-600">Get customized advice based on your skin type and beauty goals.</p>
                 </div>
               </div>
-              <Button 
-                className="mt-8 bg-rose-500 hover:bg-rose-600 text-white"
-                onClick={handleSkinQuiz}
-              >
-                Take Our Skin Quiz
-              </Button>
+              <div className="flex flex-col sm:flex-row gap-4 mt-8">
+                <Button 
+                  className="bg-rose-500 hover:bg-rose-600 text-white"
+                  onClick={handleTutorials}
+                >
+                  View Complete Tutorials
+                </Button>
+                <Button 
+                  variant="outline"
+                  className="border-rose-300 text-rose-600 hover:bg-rose-50"
+                  onClick={handleSkinQuiz}
+                >
+                  Take Our Skin Quiz
+                </Button>
+              </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <img 

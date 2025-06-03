@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -6,13 +5,25 @@ import { Badge } from "@/components/ui/badge";
 import { Palette, ArrowLeft, CheckCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
+interface QuizOption {
+  value: string;
+  label: string;
+  points: Record<string, number>;
+}
+
+interface QuizQuestion {
+  id: number;
+  question: string;
+  options: QuizOption[];
+}
+
 const SkinQuiz = () => {
   const navigate = useNavigate();
   const [currentQuestion, setCurrentQuestion] = useState(0);
-  const [answers, setAnswers] = useState({});
-  const [result, setResult] = useState(null);
+  const [answers, setAnswers] = useState<Record<number, QuizOption>>({});
+  const [result, setResult] = useState<string | null>(null);
 
-  const questions = [
+  const questions: QuizQuestion[] = [
     {
       id: 1,
       question: "How does your skin feel by midday?",
@@ -94,7 +105,7 @@ const SkinQuiz = () => {
     }
   };
 
-  const handleAnswer = (option) => {
+  const handleAnswer = (option: QuizOption) => {
     const newAnswers = { ...answers, [currentQuestion]: option };
     setAnswers(newAnswers);
 
@@ -105,17 +116,17 @@ const SkinQuiz = () => {
     }
   };
 
-  const calculateResult = (allAnswers) => {
+  const calculateResult = (allAnswers: Record<number, QuizOption>) => {
     const scores = { dry: 0, oily: 0, combination: 0, normal: 0, sensitive: 0, acne: 0 };
 
     Object.values(allAnswers).forEach(answer => {
       Object.entries(answer.points).forEach(([skinType, points]) => {
-        scores[skinType] += points;
+        scores[skinType as keyof typeof scores] += points;
       });
     });
 
     const topSkinType = Object.entries(scores).reduce((a, b) => 
-      scores[a[0]] > scores[b[0]] ? a : b
+      scores[a[0] as keyof typeof scores] > scores[b[0] as keyof typeof scores] ? a : b
     )[0];
 
     setResult(topSkinType);
