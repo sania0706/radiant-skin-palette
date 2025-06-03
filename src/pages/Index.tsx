@@ -1,12 +1,14 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Star, ShoppingBag, Eye, Palette, Menu, X } from "lucide-react";
+import { Star, ShoppingBag, Eye, Palette, Menu, X, ArrowDown } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const Index = () => {
   const [activeSection, setActiveSection] = useState("all");
+  const [selectedSkinType, setSelectedSkinType] = useState<string | null>(null);
   const [cart, setCart] = useState([]);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
@@ -83,9 +85,14 @@ const Index = () => {
     { id: "acne-prone", name: "Acne-Prone", icon: "🎯" }
   ];
 
-  const filteredProducts = activeSection === "all" 
-    ? products 
-    : products.filter(product => product.category === activeSection);
+  const getFilteredProducts = () => {
+    if (selectedSkinType) {
+      return products.filter(product => product.skinType.includes(selectedSkinType));
+    }
+    return activeSection === "all" 
+      ? products 
+      : products.filter(product => product.category === activeSection);
+  };
 
   const addToCart = (product) => {
     setCart(prev => [...prev, product]);
@@ -98,6 +105,19 @@ const Index = () => {
       element.scrollIntoView({ behavior: 'smooth' });
     }
     setMobileMenuOpen(false);
+  };
+
+  const handleSkinTypeClick = (skinType) => {
+    setSelectedSkinType(skinType.id);
+    setActiveSection("all"); // Reset category filter when skin type is selected
+    
+    // Smooth scroll to products section
+    setTimeout(() => {
+      const element = document.getElementById('products');
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+      }
+    }, 100);
   };
 
   const handleTutorials = () => {
@@ -265,24 +285,37 @@ const Index = () => {
           <div className="text-center mb-12">
             <h2 className="text-4xl font-bold text-gray-900 mb-4">Find Your Perfect Match</h2>
             <p className="text-xl text-gray-600">Products tailored to your unique skin type</p>
+            {selectedSkinType && (
+              <div className="mt-4 flex items-center justify-center space-x-2">
+                <Badge variant="outline" className="text-rose-600 border-rose-300">
+                  Showing products for: {skinTypes.find(type => type.id === selectedSkinType)?.name}
+                </Badge>
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  onClick={() => setSelectedSkinType(null)}
+                  className="text-rose-600 hover:text-rose-700"
+                >
+                  Clear filter
+                </Button>
+              </div>
+            )}
           </div>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
             {skinTypes.map((type) => (
               <Card 
                 key={type.id} 
-                className="cursor-pointer hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
-                onClick={() => {
-                  console.log(`Selected skin type: ${type.name}`);
-                  // Filter products by skin type
-                  const filteredBySkinType = products.filter(product => 
-                    product.skinType.includes(type.id)
-                  );
-                  console.log(`Products for ${type.name}:`, filteredBySkinType);
-                }}
+                className={`cursor-pointer transition-all duration-300 hover:shadow-lg hover:-translate-y-1 ${
+                  selectedSkinType === type.id ? 'ring-2 ring-rose-500 bg-rose-50' : ''
+                }`}
+                onClick={() => handleSkinTypeClick(type)}
               >
                 <CardContent className="p-6 text-center">
                   <div className="text-3xl mb-3">{type.icon}</div>
                   <h3 className="font-semibold text-gray-900">{type.name}</h3>
+                  {selectedSkinType === type.id && (
+                    <ArrowDown className="h-4 w-4 mx-auto mt-2 text-rose-500 animate-bounce" />
+                  )}
                 </CardContent>
               </Card>
             ))}
@@ -294,18 +327,26 @@ const Index = () => {
       <section className="py-16 bg-gradient-to-br from-rose-50 to-pink-50" id="products">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">Our Collections</h2>
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">
+              {selectedSkinType ? `Perfect for ${skinTypes.find(type => type.id === selectedSkinType)?.name}` : 'Our Collections'}
+            </h2>
             <div className="flex justify-center space-x-4 mb-8">
               <Button 
                 variant={activeSection === "all" ? "default" : "outline"}
-                onClick={() => setActiveSection("all")}
+                onClick={() => {
+                  setActiveSection("all");
+                  setSelectedSkinType(null);
+                }}
                 className={activeSection === "all" ? "bg-rose-500 text-white" : ""}
               >
                 All Products
               </Button>
               <Button 
                 variant={activeSection === "skincare" ? "default" : "outline"}
-                onClick={() => setActiveSection("skincare")}
+                onClick={() => {
+                  setActiveSection("skincare");
+                  setSelectedSkinType(null);
+                }}
                 className={activeSection === "skincare" ? "bg-rose-500 text-white" : ""}
                 id="skincare"
               >
@@ -314,7 +355,10 @@ const Index = () => {
               </Button>
               <Button 
                 variant={activeSection === "makeup" ? "default" : "outline"}
-                onClick={() => setActiveSection("makeup")}
+                onClick={() => {
+                  setActiveSection("makeup");
+                  setSelectedSkinType(null);
+                }}
                 className={activeSection === "makeup" ? "bg-rose-500 text-white" : ""}
                 id="makeup"
               >
@@ -324,9 +368,13 @@ const Index = () => {
             </div>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {filteredProducts.map((product) => (
-              <Card key={product.id} className="group cursor-pointer hover:shadow-xl transition-all duration-300 hover:-translate-y-2 overflow-hidden">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 transition-all duration-500">
+            {getFilteredProducts().map((product, index) => (
+              <Card 
+                key={product.id} 
+                className="group cursor-pointer hover:shadow-xl transition-all duration-300 hover:-translate-y-2 overflow-hidden animate-fade-in"
+                style={{ animationDelay: `${index * 100}ms` }}
+              >
                 <div className="aspect-square overflow-hidden">
                   <img 
                     src={product.image} 
@@ -360,6 +408,18 @@ const Index = () => {
               </Card>
             ))}
           </div>
+
+          {getFilteredProducts().length === 0 && (
+            <div className="text-center py-12">
+              <p className="text-gray-500 text-lg">No products found for this skin type.</p>
+              <Button 
+                className="mt-4 bg-rose-500 hover:bg-rose-600 text-white"
+                onClick={() => setSelectedSkinType(null)}
+              >
+                View All Products
+              </Button>
+            </div>
+          )}
         </div>
       </section>
 
